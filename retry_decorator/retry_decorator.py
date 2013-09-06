@@ -15,7 +15,7 @@ def retry(ExceptionToCheck, tries=10, timeout_secs=1.0, fptr=sys.stderr):
     def deco_retry(f):
         def f_retry(*args, **kwargs):
             mtries, mdelay = tries, timeout_secs
-            while mtries > 1:
+            while mtries > 0:
                 try:
                     return f(*args, **kwargs)
                 except ExceptionToCheck as e:
