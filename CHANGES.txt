@@ -4,6 +4,12 @@ This file will be added to as part of each release
 
 ----
 
+Version 0.1.2, Fri 22 Nov 2013
+===============================
+
+3c01cdcd38	removed manifest (Patrick)
+
+
 Version 0.1.1, Fri 22 Nov 2013
 ===============================
 
