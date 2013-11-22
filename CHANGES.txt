@@ -3,3 +3,13 @@ Change-log for retry_decorator.
 This file will be added to as part of each release
 
 ----
+
+Version 0.1.1, Fri 22 Nov 2013
+===============================
+
+09d0b03f13	added setup.py (Patrick)
+7a4fe23aa9	license and change.txt (Patrick)
+b985477f21	- add Makefile to generate versioned tarball
+    - add setup.py to help with installation (Robert Schweikert)
+5803da54f2	new readme (Patrick)
+
