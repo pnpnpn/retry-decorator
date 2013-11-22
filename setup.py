@@ -9,7 +9,6 @@ except ImportError:
 
 setup( 
         name='retry_decorator',
-        version='0.1.0',
         description='Retry Decorator',
         long_description = 'See homepage for usage',
         author='Patrick Ng',
