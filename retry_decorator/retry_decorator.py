@@ -8,7 +8,7 @@ import time
 import random
 import sys
 
-def retry(ExceptionToCheck, tries=10, timeout_secs=1.0, fptr=sys.stderr):
+def retry(ExceptionToCheck, tries=10, timeout_secs=1.0, logger=None):
     """
     Retry calling the decorated function using an exponential backoff.
     """
@@ -23,7 +23,10 @@ def retry(ExceptionToCheck, tries=10, timeout_secs=1.0, fptr=sys.stderr):
                     half_interval = mdelay * 0.10 #interval size
                     actual_delay = random.uniform(mdelay - half_interval, mdelay + half_interval)
                     msg = "Retrying in %.2f seconds ..." % actual_delay
-                    print(msg, file=fptr)
+                    if logger is None:
+                        logging.exception(msg)
+                    else:
+                        logger.exception(msg)
                     time.sleep(actual_delay)
                     mtries -= 1
                     mdelay *= 2
