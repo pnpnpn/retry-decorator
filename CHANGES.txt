@@ -4,6 +4,12 @@ This file will be added to as part of each release
 
 ----
 
+Version 1.0.0, Fri 22 Nov 2013
+===============================
+
+9254d78ccc	Using seed for pypi deployment; modified to use logger rather fptr (Patrick)
+
+
 Version 0.1.3, Fri 22 Nov 2013
 ===============================
 
