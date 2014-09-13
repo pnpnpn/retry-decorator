@@ -22,3 +22,7 @@ Retry decorator
             test_retry()
         except Exception as e:
             print('Received the last exception')
+
+Contribute
+---------------
+I would love for you to fork and send me pull request for this project. Please contribute.
