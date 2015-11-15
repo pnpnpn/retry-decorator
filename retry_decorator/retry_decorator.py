@@ -1,4 +1,6 @@
-#!/usr/bin/env python
+#
+# License: MIT
+#
 
 from __future__ import print_function
 
