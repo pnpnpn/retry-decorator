@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 from retry_decorator import __version__
 
-setup( 
+setup(
         name='retry_decorator',
         version=__version__,
         author='Patrick Ng',
@@ -16,8 +16,9 @@ setup(
         packages=find_packages(),
         description='Retry Decorator',
         long_description=open('README.rst').read() if exists("README.rst") else "",
-        install_requires=[
-        
-            ],
+        install_requires=[],
+        classifiers=[
+            'Programming Language :: Python :: 2',
+            'Programming Language :: Python :: 3',
+        ]
 )
-
