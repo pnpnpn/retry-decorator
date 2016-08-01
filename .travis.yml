@@ -1,6 +1,7 @@
 language: python
 python:
 - '2.7'
+script: echo "TODO add tests"
 deploy:
   provider: pypi
   user: png
