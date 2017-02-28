@@ -26,16 +26,18 @@ def retry(ExceptionToCheck, tries=10, timeout_secs=1.0, logger=None, callback_by
                     return f(*args, **kwargs)
                 except ExceptionToCheck as e:
                     # check if this exception is something the caller wants special handling for
-                    if callback_by_exception and ExceptionToCheck in callback_by_exception:
-                        callback_logic = callback_by_exception[ExceptionToCheck]
-                        should_break_out = run_one_last_time = False
-                        if isinstance(callback_logic, (list, tuple)):
-                            callback_logic, should_break_out = callback_logic
-                            if isinstance(should_break_out, (list, tuple)):
-                                should_break_out, run_one_last_time = should_break_out
-                        callback_logic()
-                        if should_break_out:  # caller requests we stop handling this exception
-                            break
+                    callback_errors = callback_by_exception or {}
+                    for error_type in callback_errors:
+                        if isinstance(e, error_type):
+                            callback_logic = callback_by_exception[error_type]
+                            should_break_out = run_one_last_time = False
+                            if isinstance(callback_logic, (list, tuple)):
+                                callback_logic, should_break_out = callback_logic
+                                if isinstance(should_break_out, (list, tuple)):
+                                    should_break_out, run_one_last_time = should_break_out
+                            callback_logic()
+                            if should_break_out:  # caller requests we stop handling this exception
+                                break
                     #traceback.print_exc()
                     half_interval = mdelay * 0.10 #interval size
                     actual_delay = random.uniform(mdelay - half_interval, mdelay + half_interval)
