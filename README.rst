@@ -1,4 +1,6 @@
-
+.. image:: https://badge.fury.io/py/retry_decorator.svg
+    :target: https://badge.fury.io/py/retry_decorator
+    
 Usage
 -----
 
