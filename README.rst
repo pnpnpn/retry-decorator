@@ -1,5 +1,8 @@
 .. image:: https://badge.fury.io/py/retry_decorator.svg
     :target: https://badge.fury.io/py/retry_decorator
+
+.. image:: https://travis-ci.org/pnpnpn/retry-decorator.svg?branch=master
+    :target: https://travis-ci.org/pnpnpn/retry-decorator
     
 Usage
 -----
