@@ -17,7 +17,14 @@ class MyTestCase(unittest.TestCase):
             my_test_func()
         except Exception:  # for the dangling exception (the "final" function execution)
             pass
-        self.assertEqual(class_for_testing.hello, 'world')
+        self.assertIn(class_for_testing.hello, ('world', 'fish', ))
+
+    def test_two_exceptions_to_check_use_one(self):
+        try:
+            my_test_func_2()
+        except Exception:
+            pass
+        self.assertIn(class_for_testing.hello, ('world', 'fish', ))
 
 
 def callback_logic(instance, attr_to_set, value_to_set):
@@ -25,12 +32,20 @@ def callback_logic(instance, attr_to_set, value_to_set):
     setattr(instance, attr_to_set, value_to_set)
 
 
-@retry_decorator.retry(ExceptionToCheck=AttributeError, tries=2, callback_by_exception={
-    AttributeError: functools.partial(callback_logic, class_for_testing, 'hello', 'world')})
-def my_test_func():
-    x = 3
-    print(x.split(','))
+class TestError(Exception):
+    pass
 
+
+@retry_decorator.retry(ExceptionToCheck=TestError, tries=2, callback_by_exception={
+    TestError: functools.partial(callback_logic, class_for_testing, 'hello', 'world')})
+def my_test_func():
+    raise TestError('oh noes.')
+
+
+@retry_decorator.retry(ExceptionToCheck=(TestError, AttributeError), tries=2, callback_by_exception={
+    AttributeError: functools.partial(callback_logic, class_for_testing, 'hello', 'fish')})
+def my_test_func_2():
+    raise AttributeError('attribute oh noes.')
 
 if __name__ == '__main__':
     unittest.main()
