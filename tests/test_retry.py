@@ -6,14 +6,19 @@
 #
 
 from __future__ import print_function
-from retry_decorator import *
+from retry_decorator import retry
 
 
-@retry(Exception, tries = 3, timeout_secs = 0.1)
+@retry(Exception, tries=3, timeout_secs=0.1)
 def test_retry():
     import sys
-    print('hello', file = sys.stderr)
+    print('hello', file=sys.stderr)
     raise Exception('Testing retry')
+
+@retry(AttributeError, RuntimeError, tries=3)
+def test_multiple_exceptions():
+    print('hi')
+    raise AttributeError('Testing retry with multiple exceptions')
 
 if __name__ == '__main__':
     try:
@@ -21,5 +26,7 @@ if __name__ == '__main__':
     except Exception as e:
         print('Received the last exception')
 
-
-
+    try:
+        test_multiple_exceptions()
+    except AttributeError:
+        print('Received the last exception for multipme exceptions')
