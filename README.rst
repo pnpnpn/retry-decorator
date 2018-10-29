@@ -3,7 +3,7 @@
 
 .. image:: https://travis-ci.org/pnpnpn/retry-decorator.svg?branch=master
     :target: https://travis-ci.org/pnpnpn/retry-decorator
-    
+
 Usage
 -----
 
@@ -16,11 +16,11 @@ Retry decorator
     from __future__ import print_function
     from retry_decorator import *
 
-    @retry(Exception, tries = 3, timeout_secs = 0.1)
+    @retry(RuntimeError, KeyError, tries = 3, timeout_secs = 0.1)
     def test_retry():
         import sys
         print('hello', file = sys.stderr)
-        raise Exception('Testing retry')
+        raise RuntimeError('Testing retry')
 
     if __name__ == '__main__':
         try:
@@ -30,5 +30,5 @@ Retry decorator
 
 
 Contribute
----------------
+----------
 I would love for you to fork and send me pull request for this project. Please contribute.
