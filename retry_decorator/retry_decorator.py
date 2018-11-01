@@ -11,13 +11,12 @@ import time
 import random
 import sys
 
-def retry(exception, *exceptions, tries=10, timeout_secs=1.0, logger=None, callback_by_exception=None):
+def retry(ExceptionToCheck, tries=10, timeout_secs=1.0, logger=None, callback_by_exception=None):
     """
     Retry calling the decorated function using an exponential backoff.
     :param callback_by_exception: callback/method invocation on certain exceptions
     :type callback_by_exception: None or dict
     """
-    exceptions += tuple([exception])
     def deco_retry(f):
         def f_retry(*args, **kwargs):
             mtries, mdelay = tries, timeout_secs
@@ -25,7 +24,7 @@ def retry(exception, *exceptions, tries=10, timeout_secs=1.0, logger=None, callb
             while mtries > 1:
                 try:
                     return f(*args, **kwargs)
-                except exceptions as e:
+                except ExceptionToCheck as e:
                     # check if this exception is something the caller wants special handling for
                     callback_errors = callback_by_exception or {}
                     for error_type in callback_errors:
