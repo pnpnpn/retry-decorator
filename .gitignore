@@ -2,7 +2,6 @@
 *.swp
 *~
 venv
-.mypy_cache
 
 # C extensions
 *.so

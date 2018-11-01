@@ -8,4 +8,4 @@
 from .retry_decorator import *
 
 __title__ = 'retry_decorator'
-__version__ = "2.0.0"
+__version__ = "1.1.0"
