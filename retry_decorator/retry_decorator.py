@@ -11,6 +11,7 @@ import time
 import random
 import sys
 
+
 def retry(ExceptionToCheck, tries=10, timeout_secs=1.0, logger=None, callback_by_exception=None):
     """
     Retry calling the decorated function using an exponential backoff.
@@ -38,8 +39,8 @@ def retry(ExceptionToCheck, tries=10, timeout_secs=1.0, logger=None, callback_by
                             callback_logic()
                             if should_break_out:  # caller requests we stop handling this exception
                                 break
-                    #traceback.print_exc()
-                    half_interval = mdelay * 0.10 #interval size
+                    # traceback.print_exc()
+                    half_interval = mdelay * 0.10  # interval size
                     actual_delay = random.uniform(mdelay - half_interval, mdelay + half_interval)
                     msg = "Retrying in %.2f seconds ..." % actual_delay
                     if logger is None:
@@ -53,5 +54,3 @@ def retry(ExceptionToCheck, tries=10, timeout_secs=1.0, logger=None, callback_by
                 return f(*args, **kwargs)
         return f_retry  # true decorator
     return deco_retry
-
-

@@ -38,13 +38,13 @@ class TestError(Exception):
 
 @retry_decorator.retry(ExceptionToCheck=TestError, tries=2, callback_by_exception={
     TestError: functools.partial(callback_logic, class_for_testing, 'hello', 'world')})
-def my_test_func():
+def test_func():
     raise TestError('oh noes.')
 
 
 @retry_decorator.retry(ExceptionToCheck=(TestError, AttributeError), tries=2, callback_by_exception={
     AttributeError: functools.partial(callback_logic, class_for_testing, 'hello', 'fish')})
-def my_test_func_2():
+def test_func_2():
     raise AttributeError('attribute oh noes.')
 
 if __name__ == '__main__':
