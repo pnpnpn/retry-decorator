@@ -2,9 +2,10 @@ language: python
 sudo: false
 python:
 - '2.7'
-- '3.4'
 - '3.5'
 - '3.6'
+- '3.7'
+- '3.8'
 install:
 - pip install python-coveralls tox tox-travis
 script: tox --recreate
@@ -18,4 +19,4 @@ deploy:
   password:
     secure: "m6n470zn8+lLDoB0W/goO3ovoMScb7sVWRQcXtm7V99YtxgBzqDT+xy4nPfEeRj/0FHSL2/k9xJHV4Q8l+UfjGFR6fszXPKkSgeL4KfE0r5GuVDNIRu853f5Pa7DM8l4GNn6/NP9Lv+jVD79j8Edb4nJgTWvxOnj9PvDZJnxqjk="
   on:
-    python: 2.7
+    python: 3.6
