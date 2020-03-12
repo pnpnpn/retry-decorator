@@ -32,20 +32,21 @@ def callback_logic(instance, attr_to_set, value_to_set):
     setattr(instance, attr_to_set, value_to_set)
 
 
-class TestError(Exception):
+class ExampleTestError(Exception):
     pass
 
 
-@retry_decorator.retry(ExceptionToCheck=TestError, tries=2, callback_by_exception={
-    TestError: functools.partial(callback_logic, class_for_testing, 'hello', 'world')})
+@retry_decorator.retry(exc=ExampleTestError, tries=2, callback_by_exception={
+    ExampleTestError: functools.partial(callback_logic, class_for_testing, 'hello', 'world')})
 def my_test_func():
-    raise TestError('oh noes.')
+    raise ExampleTestError('oh noes.')
 
 
-@retry_decorator.retry(ExceptionToCheck=(TestError, AttributeError), tries=2, callback_by_exception={
+@retry_decorator.retry(exc=(ExampleTestError, AttributeError), tries=2, callback_by_exception={
     AttributeError: functools.partial(callback_logic, class_for_testing, 'hello', 'fish')})
 def my_test_func_2():
     raise AttributeError('attribute oh noes.')
+
 
 if __name__ == '__main__':
     unittest.main()

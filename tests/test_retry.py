@@ -15,6 +15,7 @@ def retry_test():
     print('hello', file=sys.stderr)
     raise Exception('Testing retry')
 
+
 if __name__ == '__main__':
     try:
         retry_test()
