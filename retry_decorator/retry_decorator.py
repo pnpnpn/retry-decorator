@@ -43,7 +43,9 @@ def _deco_retry(f, exc=Exception, tries=10, timeout_secs=1.0, logger=None, callb
                 for error_type in callback_errors:
                     if isinstance(e, error_type):
                         callback_logic = callback_by_exception[error_type]
-                        should_break_out = run_one_last_time = False  # TODO: why is run_one_last_time default value changed when callback_by_exception is defined?
+
+                        should_break_out = False
+                        run_one_last_time = True
                         if _isiter(callback_logic):
                             callback_logic, should_break_out = callback_logic
                             if _isiter(should_break_out):
