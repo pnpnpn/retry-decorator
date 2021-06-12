@@ -6,6 +6,7 @@
 import logging
 import time
 import random
+import types
 
 
 def _deco_retry(f, exc=Exception, tries=10, timeout_secs=1.0, logger=None, callback_by_exception=None):
@@ -27,11 +28,14 @@ def _deco_retry(f, exc=Exception, tries=10, timeout_secs=1.0, logger=None, callb
                 return f(*args, **kwargs)
             except exc as e:
                 # check if this exception is something the caller wants special handling for
+                if isinstance(callback_by_exception, (types.FunctionType, list, tuple)):
+                    callback_by_exception = {Exception: callback_by_exception}
+
                 callback_errors = callback_by_exception or {}
                 for error_type in callback_errors:
                     if isinstance(e, error_type):
                         callback_logic = callback_by_exception[error_type]
-                        should_break_out = run_one_last_time = False
+                        should_break_out = run_one_last_time = False  # TODO: why is run_one_last_time default value changed when callback_by_exception is defined?
                         if isinstance(callback_logic, (list, tuple)):
                             callback_logic, should_break_out = callback_logic
                             if isinstance(should_break_out, (list, tuple)):
@@ -62,7 +66,7 @@ def retry(exc=Exception, tries=10, timeout_secs=1.0, logger=None, callback_by_ex
     :param timeout_secs: general delay between retries (we do employ a jitter)
     :param logger: an optional logger object
     :param callback_by_exception: callback/method invocation on certain exceptions
-    :type callback_by_exception: None or dict
+    :type callback_by_exception: None, list, tuple, function or dict
     """
     # We re-use `RetryHandler` so that we can reduce duplication; decorator is still useful!
     retry_handler = RetryHandler(exc, tries, timeout_secs, logger, callback_by_exception)
