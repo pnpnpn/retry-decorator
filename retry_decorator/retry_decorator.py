@@ -6,7 +6,6 @@
 import logging
 import time
 import random
-import types
 
 
 def _isiter(i):
@@ -28,16 +27,16 @@ def _deco_retry(f, exc=Exception, tries=10, timeout_secs=1.0, logger=None, callb
     :param callback_by_exception:
     :return:
     """
+
     def f_retry(*args, **kwargs):
         mtries, mdelay = tries, timeout_secs
         run_one_last_time = True
+
         while mtries > 1:
             try:
                 return f(*args, **kwargs)
             except exc as e:
                 # check if this exception is something the caller wants special handling for
-                if isinstance(callback_by_exception, (types.FunctionType, list, tuple)):
-                    callback_by_exception = {Exception: callback_by_exception}
                 callback_errors = callback_by_exception or {}
 
                 for error_type in callback_errors:
@@ -96,6 +95,9 @@ class RetryHandler(object):
             raise TypeError("[tries] arg needs to be of int type")
         elif tries < 1:
             raise ValueError("[tries] arg needs to be an int >= 1")
+
+        if callable(callback_by_exception) or isinstance(callback_by_exception, (list, tuple)):
+            callback_by_exception = {Exception: callback_by_exception}
 
         self.exc = exc
         self.tries = tries

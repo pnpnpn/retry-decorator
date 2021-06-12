@@ -14,14 +14,15 @@ class ExampleTestError(Exception):
     pass
 
 
-class_for_testing = None
+class_for_testing = ClassForTesting()
 
 
 class MyTestCase(unittest.TestCase):
 
-    def setUp():
-        global class_for_testing
-        class_for_testing = ClassForTesting()
+    def setUp(self):
+        class_for_testing.hello = None
+        class_for_testing.cb_counter = 0
+        class_for_testing.exe_counter = 0
 
     def test_callback_invoked_on_configured_exception_type(self):
         try:
@@ -77,7 +78,7 @@ class MyTestCase(unittest.TestCase):
         except Exception:
             pass
         self.assertEqual(class_for_testing.hello, 'baz')
-        self.assertEqual(class_for_testing.cb_counter, 6)
+        self.assertEqual(class_for_testing.cb_counter, 6)  # we had 2 handlers, but because of breakout=True only first of them was ever ran
         self.assertEqual(class_for_testing.exe_counter, 7)
 
     def test_verify_run_last_time_false_works(self):
@@ -94,19 +95,30 @@ class MyTestCase(unittest.TestCase):
             my_test_func_9()
         except Exception:
             pass
+        self.assertEqual(class_for_testing.hello, None)
+        self.assertEqual(class_for_testing.cb_counter, 0)
+        self.assertEqual(class_for_testing.exe_counter, 1)
+
+    def test_verify_run_last_time_false_with_2_tries(self):
+        try:
+            my_test_func_10()
+        except Exception:
+            pass
         self.assertEqual(class_for_testing.hello, 'foo')
+        self.assertEqual(class_for_testing.cb_counter, 1)
+        self.assertEqual(class_for_testing.exe_counter, 1)
 
     def test_verify_tries_0_errors_out(self):
         try:
-            my_test_func_10()
-            raise Exception('Expected ValueError to be thrown')
+            retry_decorator.retry(tries=0, callback_by_exception=partial(callback_logic, class_for_testing, 'hello', 'foo'))
+            raise AssertionError('Expected ValueError to be thrown')
         except ValueError:
             pass
 
     def test_verify_tries_not_int_is_error(self):
         try:
-            my_test_func_11()
-            raise Exception('Expected TypeError to be thrown')
+            retry_decorator.retry(tries='not int', callback_by_exception=partial(callback_logic, class_for_testing, 'hello', 'foo'))
+            raise AssertionError('Expected TypeError to be thrown')
         except TypeError:
             pass
 
@@ -115,10 +127,6 @@ def callback_logic(instance, attr_to_set, value_to_set):
     print('Callback called for {}; setting attr [{}] to value [{}]'.format(instance, attr_to_set, value_to_set))
     setattr(instance, attr_to_set, value_to_set)
     instance.cb_counter += 1
-
-
-def get_callback_tuple_breakout(attr_value, breakout_value=False):
-    return (partial(callback_logic, class_for_testing, 'hello', attr_value), breakout_value)
 
 
 @retry_decorator.retry(exc=ExampleTestError, tries=2, callback_by_exception={
@@ -173,7 +181,7 @@ def my_test_func_7():
 
 @retry_decorator.retry(tries=8, callback_by_exception={
     TypeError: partial(callback_logic, class_for_testing, 'hello', 'foo'),
-    Exception: (partial(callback_logic, class_for_testing, 'hello', 'bar'), False, False)
+    Exception: (partial(callback_logic, class_for_testing, 'hello', 'bar'), (False, False))
     })
 def my_test_func_8():
     class_for_testing.exe_counter += 1
@@ -182,15 +190,14 @@ def my_test_func_8():
 
 @retry_decorator.retry(tries=1, callback_by_exception=partial(callback_logic, class_for_testing, 'hello', 'foo'))
 def my_test_func_9():
+    class_for_testing.exe_counter += 1
     raise TypeError('type oh noes.')
 
 
+@retry_decorator.retry(tries=2, callback_by_exception=(partial(callback_logic, class_for_testing, 'hello', 'foo'), (False, False)))
 def my_test_func_10():
-    retry_decorator.retry(tries=0, callback_by_exception=partial(callback_logic, class_for_testing, 'hello', 'foo'))
-
-
-def my_test_func_11():
-    retry_decorator.retry(tries='not int', callback_by_exception=partial(callback_logic, class_for_testing, 'hello', 'foo'))
+    class_for_testing.exe_counter += 1
+    raise TypeError('type oh noes.')
 
 
 if __name__ == '__main__':
