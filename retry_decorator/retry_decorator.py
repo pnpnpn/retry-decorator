@@ -9,6 +9,14 @@ import random
 import types
 
 
+def _isiter(i):
+    if not isinstance(i, (list, tuple)):
+        return False
+    elif len(i) != 2:
+        raise ValueError("provided list|tuple needs to have size of 2")
+    return True
+
+
 def _deco_retry(f, exc=Exception, tries=10, timeout_secs=1.0, logger=None, callback_by_exception=None):
     """
     Common function logic for the internal retry flows.
@@ -30,15 +38,15 @@ def _deco_retry(f, exc=Exception, tries=10, timeout_secs=1.0, logger=None, callb
                 # check if this exception is something the caller wants special handling for
                 if isinstance(callback_by_exception, (types.FunctionType, list, tuple)):
                     callback_by_exception = {Exception: callback_by_exception}
-
                 callback_errors = callback_by_exception or {}
+
                 for error_type in callback_errors:
                     if isinstance(e, error_type):
                         callback_logic = callback_by_exception[error_type]
                         should_break_out = run_one_last_time = False  # TODO: why is run_one_last_time default value changed when callback_by_exception is defined?
-                        if isinstance(callback_logic, (list, tuple)):
+                        if _isiter(callback_logic):
                             callback_logic, should_break_out = callback_logic
-                            if isinstance(should_break_out, (list, tuple)):
+                            if _isiter(should_break_out):
                                 should_break_out, run_one_last_time = should_break_out
                         callback_logic()
                         if should_break_out:  # caller requests we stop handling this exception
@@ -82,6 +90,11 @@ class RetryHandler(object):
     def __init__(
             self, exc=Exception, tries=10, timeout_secs=1.0, logger=None, callback_by_exception=None,
     ):
+        if not isinstance(tries, int):
+            raise TypeError("[tries] arg needs to be of int type")
+        elif tries < 1:
+            raise ValueError("[tries] arg needs to be an int >= 1")
+
         self.exc = exc
         self.tries = tries
         self.timeout_secs = timeout_secs

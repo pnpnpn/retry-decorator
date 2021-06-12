@@ -89,6 +89,27 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(class_for_testing.cb_counter, 14)
         self.assertEqual(class_for_testing.exe_counter, 7)  # note value is tries-1 because of run_one_last_time=False
 
+    def test_verify_tries_1_is_ok(self):
+        try:
+            my_test_func_9()
+        except Exception:
+            pass
+        self.assertEqual(class_for_testing.hello, 'foo')
+
+    def test_verify_tries_0_errors_out(self):
+        try:
+            my_test_func_10()
+            raise Exception('Expected ValueError to be thrown')
+        except ValueError:
+            pass
+
+    def test_verify_tries_not_int_is_error(self):
+        try:
+            my_test_func_11()
+            raise Exception('Expected TypeError to be thrown')
+        except TypeError:
+            pass
+
 
 def callback_logic(instance, attr_to_set, value_to_set):
     print('Callback called for {}; setting attr [{}] to value [{}]'.format(instance, attr_to_set, value_to_set))
@@ -157,6 +178,19 @@ def my_test_func_7():
 def my_test_func_8():
     class_for_testing.exe_counter += 1
     raise TypeError('type oh noes.')
+
+
+@retry_decorator.retry(tries=1, callback_by_exception=partial(callback_logic, class_for_testing, 'hello', 'foo'))
+def my_test_func_9():
+    raise TypeError('type oh noes.')
+
+
+def my_test_func_10():
+    retry_decorator.retry(tries=0, callback_by_exception=partial(callback_logic, class_for_testing, 'hello', 'foo'))
+
+
+def my_test_func_11():
+    retry_decorator.retry(tries='not int', callback_by_exception=partial(callback_logic, class_for_testing, 'hello', 'foo'))
 
 
 if __name__ == '__main__':
