@@ -8,7 +8,7 @@ import time
 import random
 
 
-def _isiter(i):
+def _is_valid_iter(i):
     if not isinstance(i, (list, tuple)):
         return False
     elif len(i) != 2:
@@ -45,9 +45,9 @@ def _deco_retry(f, exc=Exception, tries=10, timeout_secs=1.0, logger=None, callb
 
                         should_break_out = False
                         run_one_last_time = True
-                        if _isiter(callback_logic):
+                        if _is_valid_iter(callback_logic):
                             callback_logic, should_break_out = callback_logic
-                            if _isiter(should_break_out):
+                            if _is_valid_iter(should_break_out):
                                 should_break_out, run_one_last_time = should_break_out
                         callback_logic()
                         if should_break_out:  # caller requests we stop handling this exception
