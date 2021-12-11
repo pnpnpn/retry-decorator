@@ -8,6 +8,14 @@ import time
 import random
 
 
+def _is_valid_iter(i):
+    if not isinstance(i, (list, tuple)):
+        return False
+    elif len(i) != 2:
+        raise ValueError("provided list|tuple needs to have size of 2")
+    return True
+
+
 def _deco_retry(f, exc=Exception, tries=10, timeout_secs=1.0, logger=None, callback_by_exception=None):
     """
     Common function logic for the internal retry flows.
@@ -19,22 +27,27 @@ def _deco_retry(f, exc=Exception, tries=10, timeout_secs=1.0, logger=None, callb
     :param callback_by_exception:
     :return:
     """
+
     def f_retry(*args, **kwargs):
         mtries, mdelay = tries, timeout_secs
         run_one_last_time = True
+
         while mtries > 1:
             try:
                 return f(*args, **kwargs)
             except exc as e:
                 # check if this exception is something the caller wants special handling for
                 callback_errors = callback_by_exception or {}
+
                 for error_type in callback_errors:
                     if isinstance(e, error_type):
                         callback_logic = callback_by_exception[error_type]
-                        should_break_out = run_one_last_time = False
-                        if isinstance(callback_logic, (list, tuple)):
+
+                        should_break_out = False
+                        run_one_last_time = True
+                        if _is_valid_iter(callback_logic):
                             callback_logic, should_break_out = callback_logic
-                            if isinstance(should_break_out, (list, tuple)):
+                            if _is_valid_iter(should_break_out):
                                 should_break_out, run_one_last_time = should_break_out
                         callback_logic()
                         if should_break_out:  # caller requests we stop handling this exception
@@ -62,7 +75,7 @@ def retry(exc=Exception, tries=10, timeout_secs=1.0, logger=None, callback_by_ex
     :param timeout_secs: general delay between retries (we do employ a jitter)
     :param logger: an optional logger object
     :param callback_by_exception: callback/method invocation on certain exceptions
-    :type callback_by_exception: None or dict
+    :type callback_by_exception: None, list, tuple, function or dict
     """
     # We re-use `RetryHandler` so that we can reduce duplication; decorator is still useful!
     retry_handler = RetryHandler(exc, tries, timeout_secs, logger, callback_by_exception)
@@ -78,6 +91,14 @@ class RetryHandler(object):
     def __init__(
             self, exc=Exception, tries=10, timeout_secs=1.0, logger=None, callback_by_exception=None,
     ):
+        if not isinstance(tries, int):
+            raise TypeError("[tries] arg needs to be of int type")
+        elif tries < 1:
+            raise ValueError("[tries] arg needs to be an int >= 1")
+
+        if callable(callback_by_exception) or isinstance(callback_by_exception, (list, tuple)):
+            callback_by_exception = {Exception: callback_by_exception}
+
         self.exc = exc
         self.tries = tries
         self.timeout_secs = timeout_secs
